@@ -1,0 +1,24 @@
+{
+  "name": "ui-hall",
+  "version": "0.0.0",
+  "description": "UI Hall of Fame or Shame",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "author": "Theia Henderson",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@graffiti-garden/api": "^0.4.3",
+    "@graffiti-garden/implementation-local": "^0.4.1",
+    "@graffiti-garden/wrapper-vue": "^0.3.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/typescript-plugin": "^2.2.2",
+    "vite": "^6.1.0",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  }
+}
