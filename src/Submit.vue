@@ -27,7 +27,7 @@ async function submit(session: GraffitiSession) {
             value: {
                 title: title.value,
                 content: content.value,
-                url: url.value,
+                urls: [url.value],
                 tags: [fameOrShame.value],
                 createdAt: new Date().getTime(),
             },
@@ -47,6 +47,13 @@ async function submit(session: GraffitiSession) {
         <button @click="$graffiti.login()">Log in</button>
     </p>
     <form v-else @submit.prevent="submit($graffitiSession.value)">
+        <p>
+            You are posting as {{ $graffitiSession.value.actor }}.
+            <button @click="$graffiti.logout($graffitiSession.value)">
+                Log out
+            </button>
+        </p>
+
         <label for="title">Title</label>
         <input id="title" v-model="title" required />
 
@@ -81,3 +88,5 @@ async function submit(session: GraffitiSession) {
         <input type="submit" :value="isPutting ? 'Submitting...' : 'Submit'" />
     </form>
 </template>
+
+<style></style>

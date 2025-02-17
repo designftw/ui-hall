@@ -21,10 +21,11 @@ export const submissionSchema = {
           items: { type: "string" },
           contains: { enum: ["fame", "shame"] },
         },
-        url: {
-          type: "string",
+        urls: {
+          type: "array",
+          items: { type: "string" },
         },
-        attachment: {
+        attachments: {
           type: "array",
           items: {
             type: "object",
