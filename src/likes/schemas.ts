@@ -21,7 +21,7 @@ export function likeSchema(options?: {
           },
           target: {
             type: "string",
-            ...(options?.targets
+            ...(options?.targets?.length
               ? {
                   enum: options.targets,
                 }
