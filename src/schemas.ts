@@ -25,13 +25,14 @@ export const submissionSchema = {
           type: "array",
           items: { type: "string" },
         },
-        attachments: {
+        images: {
           type: "array",
           items: {
             type: "object",
-            required: ["image"],
+            required: ["graffitiFile", "alt"],
             properties: {
-              image: { type: "string" },
+              alt: { type: "string" },
+              graffitiFile: { type: "string" },
             },
           },
         },
@@ -39,5 +40,3 @@ export const submissionSchema = {
     },
   },
 } as const satisfies JSONSchema;
-
-export type Submission = GraffitiObject<typeof submissionSchema>;

@@ -4,14 +4,12 @@ import { computed } from "vue";
 import { useGraffiti, useGraffitiDiscover } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
 import { useLikeCountPerTarget } from "./likes/composables";
+import GraffitiGetFile from "./files/GetFile.vue";
 
 const graffiti = useGraffiti();
 
-const {
-    results: submissions,
-    poll: pollSubmissions,
-    isPolling: isPollingSubmissions,
-} = useGraffitiDiscover(channels, submissionSchema);
+const { results: submissions, isPolling: isPollingSubmissions } =
+    useGraffitiDiscover(channels, submissionSchema);
 
 const likeCountPerTarget = useLikeCountPerTarget(
     () => submissions.value.map((s) => graffiti.objectToUri(s)),
@@ -31,12 +29,9 @@ const submissionsSorted = computed(() =>
 </script>
 
 <template>
-    <button @click="pollSubmissions" :disabled="isPollingSubmissions">
-        {{ isPollingSubmissions ? "Refreshing..." : "Refresh" }}
-    </button>
     <ul>
         <li>
-            <RouterLink to="submit"> Submit a new entry </RouterLink>
+            <RouterLink to="submit"> Submit a new entry! </RouterLink>
         </li>
         <li
             v-for="submission in submissionsSorted"
@@ -48,21 +43,33 @@ const submissionsSorted = computed(() =>
                     params: { uri: $graffiti.objectToUri(submission) },
                 }"
             >
+                <template v-if="submission.value.images?.length">
+                    <GraffitiGetFile
+                        :locationOrUri="submission.value.images[0].graffitiFile"
+                        v-slot="{ fileUrl }"
+                    >
+                        <img
+                            v-if="fileUrl"
+                            :src="fileUrl"
+                            :alt="submission.value.images[0].alt"
+                        />
+                    </GraffitiGetFile>
+                </template>
                 <h2>
+                    <FameOrShame :tags="submission.value.tags" />
                     {{ submission.value.title }}
+                    <FameOrShame :tags="submission.value.tags" />
                 </h2>
-                <h3>
-                    {{ submission.actor }}
-                </h3>
-                <h4>
+
+                <p>By: {{ submission.actor }}</p>
+                <p>
                     Likes:
                     {{
                         likeCountPerTarget.get(
                             $graffiti.objectToUri(submission),
                         ) ?? 0
                     }}
-                </h4>
-                <FameOrShame :tags="submission.value.tags" />
+                </p>
             </RouterLink>
         </li>
         <li v-if="isPollingSubmissions">Loading...</li>
@@ -76,15 +83,23 @@ ul {
     gap: 1rem;
     list-style: none;
     padding: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 ul {
     > li {
         border: 1px solid #ccc;
         width: 15rem;
+        position: relative;
     }
 
     li {
+        img {
+            width: 100%;
+            height: auto;
+        }
+
         > a {
             display: block;
             padding: 1rem;
@@ -92,8 +107,8 @@ ul {
             color: inherit;
             text-align: center;
             transition:
-                background-color 0.3s ease,
-                box-shadow 0.3s ease;
+                background-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         > a:hover {

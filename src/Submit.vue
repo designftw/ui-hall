@@ -4,6 +4,7 @@ import type { GraffitiSession } from "@graffiti-garden/api";
 import { useGraffiti } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
 import { useRouter } from "vue-router";
+import { uploadFile } from "./files/index";
 
 const router = useRouter();
 
@@ -11,9 +12,26 @@ const title = ref("");
 const content = ref("");
 const url = ref("");
 const fameOrShame: Ref<"fame" | "shame" | undefined> = ref();
-// const attachments: Ref<Submission["value"]["attachment"]> = ref([]);
 
 const graffiti = useGraffiti();
+
+const imageFiles = ref<
+    {
+        file: File;
+        alt: string;
+    }[]
+>([]);
+
+function addImage(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (!target.files?.length) return;
+    imageFiles.value.push({
+        file: target.files[0],
+        alt: "",
+    });
+}
+
+const fileToUrl = (file: File) => URL.createObjectURL(file);
 
 const isPutting = ref(false);
 async function submit(session: GraffitiSession) {
@@ -22,6 +40,19 @@ async function submit(session: GraffitiSession) {
     }
 
     isPutting.value = true;
+
+    let images: {
+        alt: string;
+        graffitiFile: string;
+    }[] = [];
+    for (const image of imageFiles.value) {
+        const imageUri = await uploadFile(graffiti, image.file, session);
+        images.push({
+            alt: image.alt,
+            graffitiFile: imageUri,
+        });
+    }
+
     await graffiti.put<typeof submissionSchema>(
         {
             value: {
@@ -30,6 +61,7 @@ async function submit(session: GraffitiSession) {
                 urls: [url.value],
                 tags: [fameOrShame.value],
                 createdAt: new Date().getTime(),
+                images,
             },
             channels,
         },
@@ -41,52 +73,129 @@ async function submit(session: GraffitiSession) {
 </script>
 
 <template>
-    <RouterLink :to="{ name: 'gallery' }">Back to gallery</RouterLink>
-    <p v-if="!$graffitiSession.value">
-        You must be logged in to submit a shame/fame entry.
+    <template v-if="!$graffitiSession.value">
+        <p>You must be logged in to submit an entry.</p>
         <button @click="$graffiti.login()">Log in</button>
-    </p>
-    <form v-else @submit.prevent="submit($graffitiSession.value)">
-        <p>
-            You are posting as {{ $graffitiSession.value.actor }}.
-            <button @click="$graffiti.logout($graffitiSession.value)">
-                Log out
-            </button>
-        </p>
+    </template>
+    <template v-else>
+        <p>You are posting as {{ $graffitiSession.value.actor }}.</p>
+        <button @click="$graffiti.logout($graffitiSession.value)">
+            Log out
+        </button>
+        <form @submit.prevent="submit($graffitiSession.value)">
+            <fieldset>
+                <legend>Fame or Shame?</legend>
 
-        <label for="title">Title</label>
-        <input id="title" v-model="title" required />
+                <input
+                    name="fameOrShame"
+                    id="fame"
+                    type="radio"
+                    v-model="fameOrShame"
+                    value="fame"
+                    required
+                />
+                <label for="fame">Fame</label>
+                <input
+                    name="fameOrShame"
+                    id="shame"
+                    type="radio"
+                    v-model="fameOrShame"
+                    value="shame"
+                />
+                <label for="shame">Shame</label>
+            </fieldset>
 
-        <label for="content">Content</label>
-        <textarea id="content" v-model="content" required />
+            <label for="title">Title</label>
+            <input id="title" v-model="title" required />
 
-        <label for="url">URL</label>
-        <input id="url" v-model="url" type="url" />
+            <label for="content"
+                >Why should this be in the hall of
+                {{
+                    fameOrShame === "fame"
+                        ? "fame"
+                        : fameOrShame === "shame"
+                          ? "shame"
+                          : "fame or shame"
+                }}?
+            </label>
+            <textarea id="content" v-model="content" required />
 
-        <fieldset>
-            <legend>Fame or Shame?</legend>
+            <label for="url">Link to example (optional)</label>
+            <input
+                id="url"
+                v-model="url"
+                type="url"
+                placeholder="https://example.com"
+            />
+
+            <ol>
+                <li v-for="(image, index) in imageFiles" :key="index">
+                    <img :src="fileToUrl(image.file)" :alt="image.alt" />
+                    <label :for="`alt-${index}`">Alt text</label>
+                    <textarea
+                        :id="`alt-${index}`"
+                        v-model="image.alt"
+                        placeholder="An image of..."
+                        required
+                    ></textarea>
+                    <button @click="imageFiles.splice(index, 1)">Remove</button>
+                </li>
+                <li>
+                    <label for="image">Add image</label>
+                    <input
+                        id="image"
+                        type="file"
+                        accept="image/*"
+                        @change="addImage"
+                    />
+                </li>
+            </ol>
 
             <input
-                name="fameOrShame"
-                id="fame"
-                type="radio"
-                v-model="fameOrShame"
-                value="fame"
-                required
+                type="submit"
+                :value="isPutting ? 'Submitting...' : 'Submit'"
             />
-            <label for="fame">Fame</label>
-            <input
-                name="fameOrShame"
-                id="shame"
-                type="radio"
-                v-model="fameOrShame"
-                value="shame"
-            />
-            <label for="shame">Shame</label>
-        </fieldset>
-
-        <input type="submit" :value="isPutting ? 'Submitting...' : 'Submit'" />
-    </form>
+        </form>
+    </template>
 </template>
 
-<style></style>
+<style scoped>
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 30rem;
+}
+
+label + :is(input, textarea) {
+    margin-top: -1rem;
+}
+
+fieldset {
+    display: flex;
+    gap: 1rem;
+}
+
+input[type="radio"] {
+    margin: 0;
+}
+
+ol {
+    list-style: decimal;
+    padding-inline-start: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    li {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+
+        img {
+            max-width: 10rem;
+            max-height: 10rem;
+        }
+    }
+}
+</style>
