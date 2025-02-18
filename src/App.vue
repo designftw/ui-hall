@@ -1,18 +1,16 @@
 <template>
     <header>
-        <RouterLink :to="{ name: 'gallery' }">
-            <h1>UI Hall of Fame or Shame?</h1>
-        </RouterLink>
+        <h1>UI Hall of Fame or Shame?</h1>
 
         <nav>
             <ul>
                 <li>
-                    <RouterLink :to="{ name: 'gallery' }">Gallery</RouterLink>
+                    <RouterLink :to="{ name: 'gallery' }"> Gallery </RouterLink>
                 </li>
-                <li v-if="$graffitiSession.value">
-                    <button @click="$graffiti.logout($graffitiSession.value)">
-                        Log out
-                    </button>
+                <li>
+                    <RouterLink :to="{ name: 'settings' }">
+                        Settings
+                    </RouterLink>
                 </li>
             </ul>
         </nav>
@@ -34,5 +32,44 @@
 body {
     background: #111;
     color: #eee;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+}
+
+header {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    gap: 0.5rem;
+    border-bottom: 1px solid #555;
+
+    a {
+        color: #eee;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    nav {
+        .router-link-active {
+            text-decoration: underline;
+        }
+
+        ul {
+            display: flex;
+            gap: 1rem;
+            justify-content: left;
+            list-style-type: none;
+        }
+    }
 }
 </style>
