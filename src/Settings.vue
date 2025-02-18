@@ -1,11 +1,11 @@
 <template>
     <template v-if="$graffitiSession.value">
-        <p>You are logged in as {{ $graffitiSession.value.actor }}</p>
         <button @click="$graffiti.logout($graffitiSession.value)">
-            log out
+            Log out
         </button>
+        <p>You are logged in as {{ $graffitiSession.value.actor }}</p>
     </template>
     <template v-else>
-        <button @click="$graffiti.login()">log in</button>
+        <button @click="$graffiti.login()">Log in</button>
     </template>
 </template>

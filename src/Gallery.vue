@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import FameOrShame from "./FameOrShame.vue";
 import { computed } from "vue";
 import { useGraffiti, useGraffitiDiscover } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
@@ -31,11 +30,20 @@ const submissionsSorted = computed(() =>
 <template>
     <ul>
         <li>
-            <RouterLink to="submit"> Submit a new entry! </RouterLink>
+            <RouterLink to="submit">
+                <strong> Submit a new entry!</strong>
+            </RouterLink>
         </li>
         <li
             v-for="submission in submissionsSorted"
             :key="$graffiti.objectToUri(submission)"
+            :class="
+                submission.value.tags.includes('fame')
+                    ? 'fame'
+                    : submission.value.tags.includes('shame')
+                      ? 'shame'
+                      : ''
+            "
         >
             <RouterLink
                 :to="{
@@ -56,12 +64,10 @@ const submissionsSorted = computed(() =>
                     </GraffitiGetFile>
                 </template>
                 <h2>
-                    <FameOrShame :tags="submission.value.tags" />
                     {{ submission.value.title }}
-                    <FameOrShame :tags="submission.value.tags" />
                 </h2>
 
-                <p>By: {{ submission.actor }}</p>
+                <p>By {{ submission.actor }}</p>
                 <p>
                     Likes:
                     {{
@@ -69,6 +75,16 @@ const submissionsSorted = computed(() =>
                             $graffiti.objectToUri(submission),
                         ) ?? 0
                     }}
+                </p>
+                <p class="visually-hidden">
+                    {{
+                        submission.value.tags.includes("fame")
+                            ? "Fame"
+                            : submission.value.tags.includes("shame")
+                              ? "Shame"
+                              : ""
+                    }}
+                    submission
                 </p>
             </RouterLink>
         </li>
@@ -83,8 +99,17 @@ ul {
     gap: 1rem;
     list-style: none;
     padding: 0;
-    align-items: center;
     justify-content: center;
+}
+
+/* Sparkly and fun! */
+.fame {
+    box-shadow: 0 0 0.5rem gold;
+}
+
+/* Dark, stinky, and shameful! */
+.shame {
+    box-shadow: 0 0 0.5rem red;
 }
 
 ul {
@@ -92,6 +117,8 @@ ul {
         border: 1px solid #ccc;
         width: 15rem;
         position: relative;
+        overflow: hidden;
+        word-break: break-word;
     }
 
     li {
@@ -105,15 +132,14 @@ ul {
             padding: 1rem;
             text-decoration: none;
             color: inherit;
-            text-align: center;
             transition:
                 background-color 0.2s ease,
                 box-shadow 0.2s ease;
+            height: 100%;
         }
 
         > a:hover {
             background-color: rgba(255, 255, 255, 0.05);
-            box-shadow: 0.2rem 0.2rem 0 #ccc;
         }
     }
 }

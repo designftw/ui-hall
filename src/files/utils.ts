@@ -8,12 +8,10 @@ export async function fileToBase64(file: File) {
       if (typeof reader.result !== "string") {
         reject(new Error("Expected a string"));
       } else {
-        const dataRaw = reader.result;
-        const data = dataRaw.split(",")[1] || dataRaw;
         resolve({
+          data: reader.result,
           name: file.name,
           mimetype: file.type,
-          data,
         });
       }
     };

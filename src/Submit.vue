@@ -74,7 +74,10 @@ async function submit(session: GraffitiSession) {
 
 <template>
     <template v-if="!$graffitiSession.value">
-        <p>You must be logged in to submit an entry.</p>
+        <p>
+            You must be logged in to submit an entry to the UI hall of fame or
+            shame.
+        </p>
         <button @click="$graffiti.login()">Log in</button>
     </template>
     <template v-else>
