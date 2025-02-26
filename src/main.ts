@@ -9,6 +9,12 @@ import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { createRouter, createWebHistory } from "vue-router";
 import "@picocss/pico/css/pico.min.css";
 
+const redirect = sessionStorage.redirect;
+delete sessionStorage.redirect;
+if (redirect && redirect !== location.href) {
+  history.replaceState(null, "", redirect);
+}
+
 const router = createRouter({
   history: createWebHistory("/ui-hall/"),
   routes: [
