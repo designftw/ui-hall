@@ -18,10 +18,16 @@ const graffiti = useGraffiti();
 const loggingIn = ref(false);
 
 const imageFiles = ref<
-    {
-        file: File;
+    ({
         alt: string;
-    }[]
+    } & (
+        | {
+              file: File;
+          }
+        | {
+              graffitiFile: string;
+          }
+    ))[]
 >([]);
 
 function addImage(event: Event) {
@@ -47,20 +53,28 @@ async function submit(session: GraffitiSession) {
         alt: string;
         graffitiFile: string;
     }[] = [];
-    const imageUris = await Promise.allSettled(
-        imageFiles.value.map((image) =>
-            uploadFile(graffiti, image.file, session),
-        ),
-    );
-    for (const imageUri of imageUris) {
-        if (imageUri.status === "fulfilled") {
-            images.push({
-                alt: imageFiles.value[imageUris.indexOf(imageUri)].alt,
-                graffitiFile: imageUri.value,
-            });
+    for (const [index, image] of imageFiles.value.entries()) {
+        if ("graffitiFile" in image) {
+            images.push(image);
         } else {
-            alert("Failed to upload image: " + imageUri.reason);
-            return;
+            try {
+                const imageUri = await uploadFile(
+                    graffiti,
+                    image.file,
+                    session,
+                );
+                imageFiles.value[index] = {
+                    alt: image.alt,
+                    graffitiFile: imageUri,
+                };
+                images.push({
+                    alt: image.alt,
+                    graffitiFile: imageUri,
+                });
+            } catch (error) {
+                alert(`Failed to upload image ${index + 1}: ` + error);
+                return;
+            }
         }
     }
 
@@ -156,7 +170,20 @@ async function submit(session: GraffitiSession) {
 
             <ol>
                 <li v-for="(image, index) in imageFiles" :key="index">
-                    <img :src="fileToUrl(image.file)" :alt="image.alt" />
+                    <img
+                        v-if="'file' in image"
+                        :src="fileToUrl(image.file)"
+                        :alt="image.alt"
+                    />
+
+                    <GraffitiGetFile
+                        v-else
+                        :locationOrUri="image.graffitiFile"
+                        v-slot="{ fileUrl }"
+                    >
+                        <img :src="fileUrl" :alt="image.alt" />
+                    </GraffitiGetFile>
+
                     <label :for="`alt-${index}`">Alt text</label>
                     <textarea
                         :id="`alt-${index}`"
