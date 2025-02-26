@@ -23,7 +23,6 @@ const value = submissionToEdit?.value;
 
 const title = ref(value?.title ?? "");
 const content = ref(value?.content ?? "");
-const url = ref(value?.urls?.at(0) ?? "");
 const fameOrShame: Ref<"fame" | "shame" | undefined> = ref(
     value?.tags.includes("fame")
         ? "fame"
@@ -105,7 +104,6 @@ async function submit(session: GraffitiSession) {
                     ...submissionToEdit?.value,
                     title: title.value,
                     content: content.value,
-                    urls: [url.value],
                     tags: [fameOrShame.value],
                     createdAt:
                         submissionToEdit?.value.createdAt ??
@@ -168,27 +166,33 @@ async function submit(session: GraffitiSession) {
             </fieldset>
 
             <label for="title">Title</label>
-            <input id="title" v-model="title" required />
+            <input id="title" v-model="title" required placeholder="My Title" />
 
             <label for="content">
-                Why should this be in the hall of
-                <strong>{{
-                    fameOrShame === "fame"
-                        ? "fame"
-                        : fameOrShame === "shame"
-                          ? "shame"
-                          : "fame or shame"
-                }}</strong
-                >?
+                <p>
+                    Describe your example and why it deserves to be in the hall
+                    of
+                    <strong>{{
+                        fameOrShame === "fame"
+                            ? "fame"
+                            : fameOrShame === "shame"
+                              ? "shame"
+                              : "fame or shame"
+                    }}</strong
+                    >.
+                </p>
+                <p>
+                    Try to use terminology from class and The Design of Everyday
+                    Things. If this is an online example, please include links.
+                    Both markdown and HTML are accepted in your response.
+                </p>
             </label>
-            <textarea id="content" v-model="content" required />
-
-            <label for="url">Link to example (optional)</label>
-            <input
-                id="url"
-                v-model="url"
-                type="url"
-                placeholder="https://example.com"
+            <textarea
+                style="min-height: 20em"
+                id="content"
+                v-model="content"
+                required
+                placeholder="I chose this example because..."
             />
 
             <ol>
@@ -232,47 +236,7 @@ async function submit(session: GraffitiSession) {
                 :value="isPutting ? 'Submitting...' : 'Submit'"
                 :disabled="isPutting"
             />
+            <aside>You can edit your submission after submitting it.</aside>
         </form>
     </template>
 </template>
-
-<style scoped>
-/* form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 30rem;
-}
-
-label + :is(input, textarea) {
-    margin-top: -1rem;
-}
-
-fieldset {
-    display: flex;
-    gap: 1rem;
-}
-
-input[type="radio"] {
-    margin: 0;
-}
-
-ol {
-    list-style: decimal;
-    padding-inline-start: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    li {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-
-        img {
-            max-width: 10rem;
-            max-height: 10rem;
-        }
-    }
-} */
-</style>

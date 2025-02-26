@@ -130,52 +130,30 @@ const submissionsSorted = computed(() =>
 </template>
 
 <style scoped>
-/* ul {
+ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 2rem;
     list-style: none;
     padding: 0;
     justify-content: center;
 }
 
-.fame {
-    box-shadow: 0 0 0.5rem gold;
-}
-
-.shame {
-    box-shadow: 0 0 0.5rem red;
-}
-
 ul {
     > li {
-        border: 1px solid #ccc;
         width: 15rem;
         position: relative;
-        overflow: hidden;
         word-break: break-word;
-    }
+        list-style: none;
 
-    li {
+        > article {
+            height: 100%;
+        }
+
         img {
             width: 100%;
             height: auto;
         }
-
-        > a {
-            display: block;
-            padding: 1rem;
-            text-decoration: none;
-            color: inherit;
-            transition:
-                background-color 0.2s ease,
-                box-shadow 0.2s ease;
-            height: 100%;
-        }
-
-        > a:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
     }
-} */
+}
 </style>

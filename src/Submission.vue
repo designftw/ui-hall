@@ -12,6 +12,7 @@ import { useLikeCount } from "./likes/composables";
 import { useRouter } from "vue-router";
 import markdownit from "markdown-it";
 import GraffitiGetFile from "./files/GetFile.vue";
+import Replies from "./Replies.vue";
 
 const props = defineProps<{
     uri: string;
@@ -118,10 +119,10 @@ const imageIndex = ref(0);
                     </time>
                 </p>
                 <p>
-                    Liked by {{ likeCount }}
+                    Liked by <strong>{{ likeCount }}</strong>
                     {{ likeCount === 1 ? "person" : "people" }}
                 </p>
-                <p>
+                <p class="visually-hidden">
                     {{
                         submission.value.tags.includes("fame")
                             ? "Fame"
@@ -169,62 +170,65 @@ const imageIndex = ref(0);
             </header>
 
             <main>
-                <figure v-if="submission.value.images?.length">
+                <section
+                    class="image-gallery"
+                    v-if="submission.value.images?.length"
+                >
+                    <button
+                        @click="
+                            imageIndex =
+                                (imageIndex -
+                                    1 +
+                                    submission.value.images.length) %
+                                submission.value.images.length
+                        "
+                    >
+                        ◀️
+                    </button>
                     <GraffitiGetFile
                         :locationOrUri="
                             submission.value.images[imageIndex].graffitiFile
                         "
                         v-slot="{ fileUrl }"
                     >
-                        <img
-                            :src="fileUrl ?? undefined"
-                            :alt="submission.value.images[imageIndex].alt"
-                        />
+                        <figure>
+                            <img
+                                :src="fileUrl ?? undefined"
+                                :alt="submission.value.images[imageIndex].alt"
+                            />
+                        </figure>
                     </GraffitiGetFile>
-                    <template v-if="submission.value.images.length > 1">
-                        <button
-                            @click="
-                                imageIndex =
-                                    (imageIndex -
-                                        1 +
-                                        submission.value.images.length) %
-                                    submission.value.images.length
-                            "
-                        >
-                            Previous image
-                        </button>
-                        <button
-                            @click="
-                                imageIndex =
-                                    (imageIndex + 1) %
-                                    submission.value.images.length
-                            "
-                        >
-                            Next image
-                        </button>
-                    </template>
-                </figure>
+                    <button
+                        @click="
+                            imageIndex =
+                                (imageIndex + 1) %
+                                submission.value.images.length
+                        "
+                    >
+                        ▶️
+                    </button>
+                </section>
                 <section v-html="md.render(submission.value.content)"></section>
             </main>
         </article>
+        <h2>Replies</h2>
+        <Replies :uri="uri" :comment-box-open="true" />
     </GraffitiGet>
 </template>
 
 <style scoped>
-/* article {
-    width: 30em;
-    margin: 0 auto;
-    padding: 1em;
+.image-gallery {
+    display: flex;
 
     img {
+        flex: 1 1 auto;
         max-width: 100%;
-        height: auto;
     }
 
-    header > ul {
-        display: flex;
-        gap: 1em;
-        list-style-type: none;
+    button {
+        flex: 0 0 auto;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
     }
-} */
+}
 </style>

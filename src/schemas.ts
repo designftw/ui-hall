@@ -21,10 +21,6 @@ export const submissionSchema = {
           items: { type: "string" },
           contains: { enum: ["fame", "shame"] },
         },
-        urls: {
-          type: "array",
-          items: { type: "string" },
-        },
         images: {
           type: "array",
           items: {

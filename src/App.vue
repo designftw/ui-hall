@@ -25,22 +25,10 @@
 </template>
 
 <style>
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    background: #111;
-    color: #eee;
-}
-
-main {
+#app > main {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 2rem;
     gap: 1rem;
 }
 
@@ -60,29 +48,38 @@ header {
     display: flex;
     flex-direction: column;
     align-items: left;
-    gap: 0.5rem;
     border-bottom: 1px solid #555;
+}
 
-    a {
-        color: #eee;
-        text-decoration: none;
+.shame,
+.fame {
+    position: relative;
+
+    &::before {
+        position: absolute;
+        top: -1rem;
+        right: -1rem;
+        border-radius: 0.25rem;
+        padding: 0.25rem;
+        background: black;
+        border: 2px solid white;
     }
+}
 
-    a:hover {
-        text-decoration: underline;
-    }
+.shame:before {
+    content: "Shame 💩";
+}
+.fame:before {
+    content: "Fame ⭐";
+}
 
-    nav {
-        .router-link-active {
-            text-decoration: underline;
-        }
+article {
+    border: 2px solid grey;
+}
 
-        ul {
-            display: flex;
-            gap: 1rem;
-            justify-content: left;
-            list-style-type: none;
-        }
-    }
+main > :not(ul) {
+    width: 100%;
+    max-width: 50rem;
+    margin: auto;
 }
 </style>
