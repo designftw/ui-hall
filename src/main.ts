@@ -7,6 +7,7 @@ import Settings from "./Settings.vue";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
 import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { createRouter, createWebHistory } from "vue-router";
+import "@picocss/pico/css/pico.min.css";
 
 const router = createRouter({
   history: createWebHistory(),
