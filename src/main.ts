@@ -5,7 +5,7 @@ import Submission from "./Submission.vue";
 import Gallery from "./Gallery.vue";
 import Settings from "./Settings.vue";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
-import { GraffitiLocal } from "@graffiti-garden/implementation-local";
+import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -38,6 +38,6 @@ const router = createRouter({
 createApp(App)
   .use(router)
   .use(GraffitiPlugin, {
-    graffiti: new GraffitiLocal(),
+    graffiti: new GraffitiRemote(),
   })
   .mount("#app");
