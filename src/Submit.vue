@@ -15,6 +15,8 @@ const fameOrShame: Ref<"fame" | "shame" | undefined> = ref();
 
 const graffiti = useGraffiti();
 
+const loggingIn = ref(false);
+
 const imageFiles = ref<
     {
         file: File;
@@ -93,13 +95,17 @@ async function submit(session: GraffitiSession) {
             You must be logged in to submit an entry to the UI hall of fame or
             shame.
         </p>
-        <button @click="$graffiti.login()">Log in</button>
+        <button
+            @click="
+                loggingIn = true;
+                $graffiti.login().finally(() => (loggingIn = false));
+            "
+            :disabled="loggingIn"
+        >
+            {{ loggingIn ? "Logging in..." : "Log in" }}
+        </button>
     </template>
     <template v-else>
-        <p>You are posting as {{ $graffitiSession.value.actor }}.</p>
-        <button @click="$graffiti.logout($graffitiSession.value)">
-            Log out
-        </button>
         <form @submit.prevent="submit($graffitiSession.value)">
             <fieldset>
                 <legend>Fame or Shame?</legend>
@@ -119,6 +125,7 @@ async function submit(session: GraffitiSession) {
                     type="radio"
                     v-model="fameOrShame"
                     value="shame"
+                    required
                 />
                 <label for="shame">Shame</label>
             </fieldset>
@@ -126,15 +133,16 @@ async function submit(session: GraffitiSession) {
             <label for="title">Title</label>
             <input id="title" v-model="title" required />
 
-            <label for="content"
-                >Why should this be in the hall of
-                {{
+            <label for="content">
+                Why should this be in the hall of
+                <strong>{{
                     fameOrShame === "fame"
                         ? "fame"
                         : fameOrShame === "shame"
                           ? "shame"
                           : "fame or shame"
-                }}?
+                }}</strong
+                >?
             </label>
             <textarea id="content" v-model="content" required />
 
@@ -172,13 +180,14 @@ async function submit(session: GraffitiSession) {
             <input
                 type="submit"
                 :value="isPutting ? 'Submitting...' : 'Submit'"
+                :disabled="isPutting"
             />
         </form>
     </template>
 </template>
 
 <style scoped>
-form {
+/* form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -215,5 +224,5 @@ ol {
             max-height: 10rem;
         }
     }
-}
+} */
 </style>
