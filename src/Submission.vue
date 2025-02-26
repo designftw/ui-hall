@@ -86,7 +86,14 @@ const imageIndex = ref(0);
         >
             <header>
                 <h1>
-                    {{ submission.value.title }}
+                    <RouterLink
+                        :to="{
+                            name: 'submission',
+                            params: { uri: $graffiti.objectToUri(submission) },
+                        }"
+                    >
+                        {{ submission.value.title }}
+                    </RouterLink>
                 </h1>
                 <p>By {{ submission.actor }}</p>
                 <p>
@@ -114,7 +121,7 @@ const imageIndex = ref(0);
                     Liked by {{ likeCount }}
                     {{ likeCount === 1 ? "person" : "people" }}
                 </p>
-                <p class="visually-hidden">
+                <p>
                     {{
                         submission.value.tags.includes("fame")
                             ? "Fame"
@@ -125,38 +132,43 @@ const imageIndex = ref(0);
                     submission
                 </p>
 
-                <ul>
-                    <li>
-                        <LikeButton
-                            :target="uri"
-                            :channels="[uri, ...channels]"
-                        />
-                    </li>
-                    <template
-                        v-if="
-                            submission.actor === $graffitiSession.value?.actor
-                        "
-                    >
+                <nav>
+                    <ul>
                         <li>
-                            <button @click="editSubmission(submission)">
-                                Edit submission
-                            </button>
+                            <LikeButton
+                                :target="uri"
+                                :channels="[uri, ...channels]"
+                            />
                         </li>
-                        <li>
-                            <button
-                                @click="
-                                    deleteSubmission(
-                                        submission,
-                                        $graffitiSession.value,
-                                    )
-                                "
-                            >
-                                Delete submission
-                            </button>
-                        </li>
-                    </template>
-                </ul>
+                        <template
+                            v-if="
+                                submission.actor ===
+                                $graffitiSession.value?.actor
+                            "
+                        >
+                            <li>
+                                <button @click="editSubmission(submission)">
+                                    Edit submission
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    @click="
+                                        deleteSubmission(
+                                            submission,
+                                            $graffitiSession.value,
+                                        )
+                                    "
+                                >
+                                    Delete submission
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
+                </nav>
+            </header>
 
+            <main>
                 <figure v-if="submission.value.images?.length">
                     <GraffitiGetFile
                         :locationOrUri="
@@ -192,15 +204,14 @@ const imageIndex = ref(0);
                         </button>
                     </template>
                 </figure>
-            </header>
-
-            <main v-html="md.render(submission.value.content)"></main>
+                <section v-html="md.render(submission.value.content)"></section>
+            </main>
         </article>
     </GraffitiGet>
 </template>
 
 <style scoped>
-article {
+/* article {
     width: 30em;
     margin: 0 auto;
     padding: 1em;
@@ -215,5 +226,5 @@ article {
         gap: 1em;
         list-style-type: none;
     }
-}
+} */
 </style>
