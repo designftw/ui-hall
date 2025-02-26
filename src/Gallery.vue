@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useGraffiti, useGraffitiDiscover } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
 import { useLikeCountPerTarget } from "./likes/composables";
@@ -15,24 +15,56 @@ const likeCountPerTarget = useLikeCountPerTarget(
     channels,
 );
 
+const sort = ref("likes");
+const filter = ref("all");
+
+const submissionsFiltered = computed(() =>
+    submissions.value.filter(
+        (submission) =>
+            filter.value === "all" ||
+            (filter.value === "fame" &&
+                submission.value.tags.includes("fame")) ||
+            (filter.value === "shame" &&
+                submission.value.tags.includes("shame")),
+    ),
+);
+
 const submissionsSorted = computed(() =>
-    submissions.value.toSorted((a, b) => {
+    submissionsFiltered.value.toSorted((a, b) => {
+        const timeDifference = b.value.createdAt - a.value.createdAt;
+        if (sort.value === "date") return timeDifference;
         const aLikes =
             likeCountPerTarget.value.get(graffiti.objectToUri(a)) ?? 0;
         const bLikes =
             likeCountPerTarget.value.get(graffiti.objectToUri(b)) ?? 0;
         if (aLikes !== bLikes) return bLikes - aLikes;
-        return b.value.createdAt - a.value.createdAt;
+        return timeDifference;
     }),
 );
 </script>
 
 <template>
+    <section>
+        <label for="sort">Sort by:</label>
+        <select id="sort" v-model="sort">
+            <option value="likes">Likes</option>
+            <option value="date">Date</option>
+        </select>
+        <label for="filter">Filter by:</label>
+        <select id="filter" v-model="filter">
+            <option value="all">All</option>
+            <option value="fame">Fame</option>
+            <option value="shame">Shame</option>
+        </select>
+    </section>
+
     <ul>
         <li>
-            <RouterLink to="submit">
-                <strong> Submit a new entry!</strong>
-            </RouterLink>
+            <article>
+                <h2>
+                    <RouterLink to="submit"> Submit a new entry! </RouterLink>
+                </h2>
+            </article>
         </li>
         <li
             v-for="submission in submissionsSorted"
@@ -45,28 +77,17 @@ const submissionsSorted = computed(() =>
                       : ''
             "
         >
-            <RouterLink
-                :to="{
-                    name: 'submission',
-                    params: { uri: $graffiti.objectToUri(submission) },
-                }"
-            >
-                <template v-if="submission.value.images?.length">
-                    <GraffitiGetFile
-                        :locationOrUri="submission.value.images[0].graffitiFile"
-                        v-slot="{ fileUrl }"
-                    >
-                        <img
-                            v-if="fileUrl"
-                            :src="fileUrl"
-                            :alt="submission.value.images[0].alt"
-                        />
-                    </GraffitiGetFile>
-                </template>
+            <article>
                 <h2>
-                    {{ submission.value.title }}
+                    <RouterLink
+                        :to="{
+                            name: 'submission',
+                            params: { uri: $graffiti.objectToUri(submission) },
+                        }"
+                    >
+                        {{ submission.value.title }}
+                    </RouterLink>
                 </h2>
-
                 <p>By {{ submission.actor }}</p>
                 <p>
                     Likes:
@@ -86,14 +107,30 @@ const submissionsSorted = computed(() =>
                     }}
                     submission
                 </p>
-            </RouterLink>
+                <template v-if="submission.value.images?.length">
+                    <GraffitiGetFile
+                        :locationOrUri="submission.value.images[0].graffitiFile"
+                        v-slot="{ fileUrl }"
+                    >
+                        <img
+                            v-if="fileUrl"
+                            :src="fileUrl"
+                            :alt="submission.value.images[0].alt"
+                        />
+                    </GraffitiGetFile>
+                </template>
+            </article>
         </li>
-        <li v-if="isPollingSubmissions">Loading...</li>
+        <li v-if="isPollingSubmissions">
+            <article>
+                <h2>Loading...</h2>
+            </article>
+        </li>
     </ul>
 </template>
 
 <style scoped>
-ul {
+/* ul {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
@@ -102,12 +139,10 @@ ul {
     justify-content: center;
 }
 
-/* Sparkly and fun! */
 .fame {
     box-shadow: 0 0 0.5rem gold;
 }
 
-/* Dark, stinky, and shameful! */
 .shame {
     box-shadow: 0 0 0.5rem red;
 }
@@ -142,5 +177,5 @@ ul {
             background-color: rgba(255, 255, 255, 0.05);
         }
     }
-}
+} */
 </style>
