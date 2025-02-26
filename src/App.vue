@@ -17,7 +17,10 @@
     </header>
 
     <main>
-        <RouterView />
+        <template v-if="$graffitiSession.value === undefined">
+            <p>Loading...</p>
+        </template>
+        <RouterView v-else />
     </main>
 </template>
 
