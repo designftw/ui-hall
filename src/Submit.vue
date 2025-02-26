@@ -107,7 +107,9 @@ async function submit(session: GraffitiSession) {
                     content: content.value,
                     urls: [url.value],
                     tags: [fameOrShame.value],
-                    createdAt: new Date().getTime(),
+                    createdAt:
+                        submissionToEdit?.value.createdAt ??
+                        new Date().getTime(),
                     images,
                 },
                 channels,
