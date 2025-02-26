@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { GraffitiObjectBase, GraffitiSession } from "@graffiti-garden/api";
+import type {
+    GraffitiObject,
+    GraffitiObjectBase,
+    GraffitiSession,
+} from "@graffiti-garden/api";
 import { useGraffiti } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
 import LikeButton from "./likes/LikeButton.vue";
@@ -20,6 +24,16 @@ const likeCount = useLikeCount(
 
 const graffiti = useGraffiti();
 const router = useRouter();
+
+async function editSubmission(
+    submission: GraffitiObject<typeof submissionSchema>,
+) {
+    router.push({
+        name: "submit",
+        params: { submissionToEdit: JSON.stringify(submission) },
+    });
+}
+
 async function deleteSubmission(
     submission: GraffitiObjectBase,
     session: GraffitiSession,
@@ -32,11 +46,18 @@ async function deleteSubmission(
         return;
     }
 
-    await graffiti.delete(submission, session);
+    try {
+        await graffiti.delete(submission, session);
+    } catch {
+        return alert("Failed to delete submission.");
+    }
     router.push({ name: "gallery" });
 }
 
-const md = markdownit();
+const md = markdownit({
+    html: true,
+    linkify: true,
+});
 
 const imageIndex = ref(0);
 </script>
@@ -111,22 +132,29 @@ const imageIndex = ref(0);
                             :channels="[uri, ...channels]"
                         />
                     </li>
-                    <li
+                    <template
                         v-if="
                             submission.actor === $graffitiSession.value?.actor
                         "
                     >
-                        <button
-                            @click="
-                                deleteSubmission(
-                                    submission,
-                                    $graffitiSession.value,
-                                )
-                            "
-                        >
-                            Delete submission
-                        </button>
-                    </li>
+                        <li>
+                            <button @click="editSubmission(submission)">
+                                Edit submission
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                @click="
+                                    deleteSubmission(
+                                        submission,
+                                        $graffitiSession.value,
+                                    )
+                                "
+                            >
+                                Delete submission
+                            </button>
+                        </li>
+                    </template>
                 </ul>
 
                 <figure v-if="submission.value.images?.length">

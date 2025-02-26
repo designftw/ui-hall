@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, type Ref } from "vue";
-import type { GraffitiSession } from "@graffiti-garden/api";
+import { ref, toRefs, type Ref } from "vue";
+import GraffitiGetFile from "./files/GetFile.vue";
+import type { GraffitiObject, GraffitiSession } from "@graffiti-garden/api";
 import { useGraffiti } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
 import { useRouter } from "vue-router";
@@ -8,10 +9,28 @@ import { uploadFile } from "./files/index";
 
 const router = useRouter();
 
-const title = ref("");
-const content = ref("");
-const url = ref("");
-const fameOrShame: Ref<"fame" | "shame" | undefined> = ref();
+const props = defineProps<{
+    submissionToEdit?: string;
+}>();
+
+const submissionToEdit = props.submissionToEdit
+    ? (JSON.parse(props.submissionToEdit) as GraffitiObject<
+          typeof submissionSchema
+      >)
+    : undefined;
+
+const value = submissionToEdit?.value;
+
+const title = ref(value?.title ?? "");
+const content = ref(value?.content ?? "");
+const url = ref(value?.urls?.at(0) ?? "");
+const fameOrShame: Ref<"fame" | "shame" | undefined> = ref(
+    value?.tags.includes("fame")
+        ? "fame"
+        : value?.tags.includes("shame")
+          ? "shame"
+          : undefined,
+);
 
 const graffiti = useGraffiti();
 
@@ -28,7 +47,7 @@ const imageFiles = ref<
               graffitiFile: string;
           }
     ))[]
->([]);
+>(value?.images ?? []);
 
 function addImage(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -81,7 +100,9 @@ async function submit(session: GraffitiSession) {
     try {
         await graffiti.put<typeof submissionSchema>(
             {
+                ...submissionToEdit,
                 value: {
+                    ...submissionToEdit?.value,
                     title: title.value,
                     content: content.value,
                     urls: [url.value],
@@ -181,7 +202,7 @@ async function submit(session: GraffitiSession) {
                         :locationOrUri="image.graffitiFile"
                         v-slot="{ fileUrl }"
                     >
-                        <img :src="fileUrl" :alt="image.alt" />
+                        <img v-if="fileUrl" :src="fileUrl" :alt="image.alt" />
                     </GraffitiGetFile>
 
                     <label :for="`alt-${index}`">Alt text</label>

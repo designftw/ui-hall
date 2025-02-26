@@ -24,8 +24,9 @@ const router = createRouter({
     },
     {
       name: "submit",
-      path: "/submit",
+      path: "/submit/:submissionToEdit?",
       component: Submit,
+      props: true,
     },
     {
       name: "settings",
