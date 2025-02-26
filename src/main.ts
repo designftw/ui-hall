@@ -10,7 +10,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import "@picocss/pico/css/pico.min.css";
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory("/ui-hall/"),
   routes: [
     {
       name: "gallery",
