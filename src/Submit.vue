@@ -45,29 +45,44 @@ async function submit(session: GraffitiSession) {
         alt: string;
         graffitiFile: string;
     }[] = [];
-    for (const image of imageFiles.value) {
-        const imageUri = await uploadFile(graffiti, image.file, session);
-        images.push({
-            alt: image.alt,
-            graffitiFile: imageUri,
-        });
+    const imageUris = await Promise.allSettled(
+        imageFiles.value.map((image) =>
+            uploadFile(graffiti, image.file, session),
+        ),
+    );
+    for (const imageUri of imageUris) {
+        if (imageUri.status === "fulfilled") {
+            images.push({
+                alt: imageFiles.value[imageUris.indexOf(imageUri)].alt,
+                graffitiFile: imageUri.value,
+            });
+        } else {
+            alert("Failed to upload image: " + imageUri.reason);
+            return;
+        }
     }
 
-    await graffiti.put<typeof submissionSchema>(
-        {
-            value: {
-                title: title.value,
-                content: content.value,
-                urls: [url.value],
-                tags: [fameOrShame.value],
-                createdAt: new Date().getTime(),
-                images,
+    try {
+        await graffiti.put<typeof submissionSchema>(
+            {
+                value: {
+                    title: title.value,
+                    content: content.value,
+                    urls: [url.value],
+                    tags: [fameOrShame.value],
+                    createdAt: new Date().getTime(),
+                    images,
+                },
+                channels,
             },
-            channels,
-        },
-        session,
-    );
-    isPutting.value = false;
+            session,
+        );
+    } catch (error) {
+        alert("Failed to submit entry." + error);
+        return;
+    } finally {
+        isPutting.value = false;
+    }
     router.push({ name: "gallery" });
 }
 </script>
