@@ -169,26 +169,28 @@ const imageIndex = ref(0);
                             :alt="submission.value.images[imageIndex].alt"
                         />
                     </GraffitiGetFile>
-                    <button
-                        @click="
-                            imageIndex =
-                                (imageIndex -
-                                    1 +
-                                    submission.value.images.length) %
-                                submission.value.images.length
-                        "
-                    >
-                        Previous image
-                    </button>
-                    <button
-                        @click="
-                            imageIndex =
-                                (imageIndex + 1) %
-                                submission.value.images.length
-                        "
-                    >
-                        Next image
-                    </button>
+                    <template v-if="submission.value.images.length > 1">
+                        <button
+                            @click="
+                                imageIndex =
+                                    (imageIndex -
+                                        1 +
+                                        submission.value.images.length) %
+                                    submission.value.images.length
+                            "
+                        >
+                            Previous image
+                        </button>
+                        <button
+                            @click="
+                                imageIndex =
+                                    (imageIndex + 1) %
+                                    submission.value.images.length
+                            "
+                        >
+                            Next image
+                        </button>
+                    </template>
                 </figure>
             </header>
 
