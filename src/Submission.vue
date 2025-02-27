@@ -175,6 +175,7 @@ const imageIndex = ref(0);
                     v-if="submission.value.images?.length"
                 >
                     <button
+                        v-if="submission.value.images.length > 1"
                         @click="
                             imageIndex =
                                 (imageIndex -
@@ -199,6 +200,7 @@ const imageIndex = ref(0);
                         </figure>
                     </GraffitiGetFile>
                     <button
+                        v-if="submission.value.images.length > 1"
                         @click="
                             imageIndex =
                                 (imageIndex + 1) %
@@ -219,6 +221,7 @@ const imageIndex = ref(0);
 <style scoped>
 .image-gallery {
     display: flex;
+    padding-bottom: 1rem;
 
     img {
         flex: 1 1 auto;

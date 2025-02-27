@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { GraffitiSession, JSONSchema } from "@graffiti-garden/api";
+import type {
+    GraffitiObjectBase,
+    GraffitiSession,
+    JSONSchema,
+} from "@graffiti-garden/api";
 import { useGraffiti } from "@graffiti-garden/wrapper-vue";
 
 const props = defineProps<{
@@ -42,6 +46,15 @@ async function postComment(session: GraffitiSession) {
     );
     commenting.value = false;
     content.value = "";
+}
+
+async function deleteComment(
+    comment: GraffitiObjectBase,
+    session: GraffitiSession,
+) {
+    confirm(
+        "Are you sure you want to delete this reply? It cannot be undone.",
+    ) && graffiti.delete(comment, session);
 }
 
 const openCommentBoxes = ref<Map<string, boolean>>(new Map());
@@ -104,7 +117,7 @@ const openCommentBoxes = ref<Map<string, boolean>>(new Map());
                                                     ?.actor === comment.actor
                                             "
                                             @click="
-                                                $graffiti.delete(
+                                                deleteComment(
                                                     comment,
                                                     $graffitiSession.value,
                                                 )
