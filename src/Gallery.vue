@@ -16,15 +16,14 @@ const likeCountPerTarget = useLikeCountPerTarget(
 );
 
 const sort = ref("likes");
-const filter = ref("all");
+const showMe = ref<Set<"fame" | "shame">>(new Set(["fame", "shame"]));
 
 const submissionsFiltered = computed(() =>
     submissions.value.filter(
         (submission) =>
-            filter.value === "all" ||
-            (filter.value === "fame" &&
+            (showMe.value.has("fame") &&
                 submission.value.tags.includes("fame")) ||
-            (filter.value === "shame" &&
+            (showMe.value.has("shame") &&
                 submission.value.tags.includes("shame")),
     ),
 );
@@ -45,17 +44,21 @@ const submissionsSorted = computed(() =>
 
 <template>
     <section>
-        <label for="sort">Sort by:</label>
-        <select id="sort" v-model="sort">
-            <option value="likes">Likes</option>
-            <option value="date">Date</option>
-        </select>
-        <label for="filter">Filter by:</label>
-        <select id="filter" v-model="filter">
-            <option value="all">All</option>
-            <option value="fame">Fame</option>
-            <option value="shame">Shame</option>
-        </select>
+        <fieldset>
+            <legend>Sort by:</legend>
+            <input type="radio" id="likes" value="likes" v-model="sort" />
+            <label for="likes"> Likes </label>
+            <input type="radio" id="date" value="date" v-model="sort" />
+            <label for="date"> Date </label>
+        </fieldset>
+
+        <fieldset>
+            <legend>Show me:</legend>
+            <input type="checkbox" id="fame" value="fame" v-model="showMe" />
+            <label for="fame"> Fame ⭐️ </label>
+            <input type="checkbox" id="shame" value="shame" v-model="showMe" />
+            <label for="shame"> Shame 😱 </label>
+        </fieldset>
     </section>
 
     <ul>
@@ -141,7 +144,7 @@ ul {
 
 ul {
     > li {
-        width: 15rem;
+        width: 20rem;
         position: relative;
         word-break: break-word;
         list-style: none;
