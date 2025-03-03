@@ -67,7 +67,7 @@ header {
 }
 
 .shame:before {
-    content: "Shame 💩";
+    content: "Shame 😱";
 }
 .fame:before {
     content: "Fame ⭐";
