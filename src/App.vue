@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import { ref } from "vue";
+const working = ref(false);
+</script>
+
 <template>
     <header>
         <h1>UI Hall of Fame or Shame?</h1>
@@ -7,10 +12,30 @@
                 <li>
                     <RouterLink :to="{ name: 'gallery' }"> Gallery </RouterLink>
                 </li>
-                <li>
-                    <RouterLink :to="{ name: 'settings' }">
-                        Settings
-                    </RouterLink>
+                <li v-if="$graffitiSession.value">
+                    <button
+                        class="secondary"
+                        @click="
+                            working = true;
+                            $graffiti
+                                .logout($graffitiSession.value)
+                                .finally(() => (working = false));
+                        "
+                        :disabled="working"
+                    >
+                        {{ working ? "Logging out..." : "Log out" }}
+                    </button>
+                </li>
+                <li v-else>
+                    <button
+                        @click.prevent="
+                            working = true;
+                            $graffiti.login().finally(() => (working = false));
+                        "
+                        :disabled="working"
+                    >
+                        {{ working ? "Logging in..." : "Log in" }}
+                    </button>
                 </li>
             </ul>
         </nav>
