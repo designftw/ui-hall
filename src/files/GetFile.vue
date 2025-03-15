@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { GraffitiLocation, GraffitiSession } from "@graffiti-garden/api";
+import type { GraffitiObjectUrl, GraffitiSession } from "@graffiti-garden/api";
 import { useGraffitiGetFile } from "./composables";
 
 const props = defineProps<{
-    locationOrUri: string | GraffitiLocation;
+    url: string | GraffitiObjectUrl;
     session?: GraffitiSession | null;
 }>();
 
@@ -17,7 +17,7 @@ defineSlots<{
 }>();
 
 const { file, fileUrl, poll, isPolling } = useGraffitiGetFile(
-    () => props.locationOrUri,
+    () => props.url,
     () => props.session,
 );
 </script>

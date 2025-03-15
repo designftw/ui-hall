@@ -8,7 +8,7 @@ import type {
 import { useGraffiti } from "@graffiti-garden/wrapper-vue";
 
 const props = defineProps<{
-    uri: string;
+    url: string;
     commentBoxOpen: boolean;
 }>();
 
@@ -19,7 +19,7 @@ const commentSchema = {
             properties: {
                 content: { type: "string" },
                 inReplyTo: {
-                    enum: [props.uri],
+                    enum: [props.url],
                 },
                 createdAt: { type: "number" },
             },
@@ -38,9 +38,9 @@ async function postComment(session: GraffitiSession) {
             value: {
                 content: content.value,
                 createdAt: new Date().getTime(),
-                inReplyTo: props.uri,
+                inReplyTo: props.url,
             },
-            channels: [props.uri],
+            channels: [props.url],
         },
         session,
     );
@@ -82,7 +82,7 @@ const openCommentBoxes = ref<Map<string, boolean>>(new Map());
             </form>
         </template>
         <GraffitiDiscover
-            :channels="[uri]"
+            :channels="[url]"
             :schema="commentSchema"
             v-slot="{ results: comments }"
         >
@@ -91,7 +91,7 @@ const openCommentBoxes = ref<Map<string, boolean>>(new Map());
                     v-for="comment in comments.toSorted(
                         (a, b) => b.value.createdAt - a.value.createdAt,
                     )"
-                    :key="$graffiti.objectToUri(comment)"
+                    :key="comment.url"
                 >
                     <article>
                         <header>
@@ -130,9 +130,7 @@ const openCommentBoxes = ref<Map<string, boolean>>(new Map());
                                         <button
                                             @click="
                                                 openCommentBoxes.set(
-                                                    $graffiti.objectToUri(
-                                                        comment,
-                                                    ),
+                                                    comment.url,
                                                     true,
                                                 )
                                             "
@@ -146,11 +144,9 @@ const openCommentBoxes = ref<Map<string, boolean>>(new Map());
                     </article>
                     <Replies
                         class="nested-comments"
-                        :uri="$graffiti.objectToUri(comment)"
+                        :url="comment.url"
                         :commentBoxOpen="
-                            openCommentBoxes.get(
-                                $graffiti.objectToUri(comment),
-                            ) ?? false
+                            openCommentBoxes.get(comment.url) ?? false
                         "
                     />
                 </li>

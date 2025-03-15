@@ -1,18 +1,14 @@
-import type { GraffitiLocation, GraffitiSession } from "@graffiti-garden/api";
+import type { GraffitiObjectUrl, GraffitiSession } from "@graffiti-garden/api";
 import { useGraffitiGet } from "@graffiti-garden/wrapper-vue";
 import { ref, type Ref, watch, computed, type MaybeRefOrGetter } from "vue";
 import { fileFromBase64 } from "./utils";
 import { fileSchema } from "./schemas";
 
 export function useGraffitiGetFile(
-  locationOrUri: MaybeRefOrGetter<GraffitiLocation | string>,
+  url: MaybeRefOrGetter<GraffitiObjectUrl | string>,
   session?: MaybeRefOrGetter<GraffitiSession | undefined | null>,
 ) {
-  const { result, poll, isPolling } = useGraffitiGet(
-    locationOrUri,
-    fileSchema,
-    session,
-  );
+  const { result, poll, isPolling } = useGraffitiGet(url, fileSchema, session);
 
   const file: Ref<File | undefined | null> = ref();
   watch(result, async (value) => {

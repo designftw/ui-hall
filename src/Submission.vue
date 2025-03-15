@@ -15,12 +15,12 @@ import GraffitiGetFile from "./files/GetFile.vue";
 import Replies from "./Replies.vue";
 
 const props = defineProps<{
-    uri: string;
+    url: string;
 }>();
 
 const likeCount = useLikeCount(
-    () => props.uri,
-    () => [props.uri, ...channels],
+    () => props.url,
+    () => [props.url, ...channels],
 );
 
 const graffiti = useGraffiti();
@@ -65,7 +65,7 @@ const imageIndex = ref(0);
 
 <template>
     <GraffitiGet
-        :locationOrUri="uri"
+        :url="url"
         :schema="submissionSchema"
         v-slot="{ result: submission }"
     >
@@ -90,7 +90,7 @@ const imageIndex = ref(0);
                     <RouterLink
                         :to="{
                             name: 'submission',
-                            params: { uri: $graffiti.objectToUri(submission) },
+                            params: { url: submission.url },
                         }"
                     >
                         {{ submission.value.title }}
@@ -137,8 +137,8 @@ const imageIndex = ref(0);
                     <ul>
                         <li>
                             <LikeButton
-                                :target="uri"
-                                :channels="[uri, ...channels]"
+                                :target="url"
+                                :channels="[url, ...channels]"
                             />
                         </li>
                         <template
@@ -187,9 +187,7 @@ const imageIndex = ref(0);
                         ◀️
                     </button>
                     <GraffitiGetFile
-                        :locationOrUri="
-                            submission.value.images[imageIndex].graffitiFile
-                        "
+                        :url="submission.value.images[imageIndex].graffitiFile"
                         v-slot="{ fileUrl }"
                     >
                         <figure>
@@ -214,7 +212,7 @@ const imageIndex = ref(0);
             </main>
         </article>
         <h2>Replies</h2>
-        <Replies :uri="uri" :comment-box-open="true" />
+        <Replies :url="url" :comment-box-open="true" />
     </GraffitiGet>
 </template>
 

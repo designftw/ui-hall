@@ -5,13 +5,11 @@ import { channels, submissionSchema } from "./schemas";
 import { useLikeCountPerTarget } from "./likes/composables";
 import GraffitiGetFile from "./files/GetFile.vue";
 
-const graffiti = useGraffiti();
-
 const { results: submissions, isPolling: isPollingSubmissions } =
     useGraffitiDiscover(channels, submissionSchema);
 
 const likeCountPerTarget = useLikeCountPerTarget(
-    () => submissions.value.map((s) => graffiti.objectToUri(s)),
+    () => submissions.value.map<string>((s) => s.url),
     channels,
 );
 
@@ -32,10 +30,8 @@ const submissionsSorted = computed(() =>
     submissionsFiltered.value.toSorted((a, b) => {
         const timeDifference = b.value.createdAt - a.value.createdAt;
         if (sort.value === "date") return timeDifference;
-        const aLikes =
-            likeCountPerTarget.value.get(graffiti.objectToUri(a)) ?? 0;
-        const bLikes =
-            likeCountPerTarget.value.get(graffiti.objectToUri(b)) ?? 0;
+        const aLikes = likeCountPerTarget.value.get(a.url) ?? 0;
+        const bLikes = likeCountPerTarget.value.get(b.url) ?? 0;
         if (aLikes !== bLikes) return bLikes - aLikes;
         return timeDifference;
     }),
@@ -71,7 +67,7 @@ const submissionsSorted = computed(() =>
         </li>
         <li
             v-for="submission in submissionsSorted"
-            :key="$graffiti.objectToUri(submission)"
+            :key="submission.url"
             :class="
                 submission.value.tags.includes('fame')
                     ? 'fame'
@@ -85,7 +81,7 @@ const submissionsSorted = computed(() =>
                     <RouterLink
                         :to="{
                             name: 'submission',
-                            params: { uri: $graffiti.objectToUri(submission) },
+                            params: { url: submission.url },
                         }"
                     >
                         {{ submission.value.title }}
@@ -94,11 +90,7 @@ const submissionsSorted = computed(() =>
                 <p>By {{ submission.actor }}</p>
                 <p>
                     Likes:
-                    {{
-                        likeCountPerTarget.get(
-                            $graffiti.objectToUri(submission),
-                        ) ?? 0
-                    }}
+                    {{ likeCountPerTarget.get(submission.url) ?? 0 }}
                 </p>
                 <p class="visually-hidden">
                     {{
@@ -112,7 +104,7 @@ const submissionsSorted = computed(() =>
                 </p>
                 <template v-if="submission.value.images?.length">
                     <GraffitiGetFile
-                        :locationOrUri="submission.value.images[0].graffitiFile"
+                        :url="submission.value.images[0].graffitiFile"
                         v-slot="{ fileUrl }"
                     >
                         <img

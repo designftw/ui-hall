@@ -5,7 +5,8 @@ import Submission from "./Submission.vue";
 import Gallery from "./Gallery.vue";
 import Settings from "./Settings.vue";
 import { GraffitiPlugin } from "@graffiti-garden/wrapper-vue";
-import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
+// import { GraffitiRemote } from "@graffiti-garden/implementation-remote";
+import { GraffitiLocal } from "@graffiti-garden/implementation-local";
 import { createRouter, createWebHistory } from "vue-router";
 import "@picocss/pico/css/pico.min.css";
 
@@ -25,7 +26,7 @@ const router = createRouter({
     },
     {
       name: "submission",
-      path: "/submission/:uri",
+      path: "/submission/:url",
       component: Submission,
       props: true,
     },
@@ -46,6 +47,6 @@ const router = createRouter({
 createApp(App)
   .use(router)
   .use(GraffitiPlugin, {
-    graffiti: new GraffitiRemote(),
+    graffiti: new GraffitiLocal(),
   })
   .mount("#app");

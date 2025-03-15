@@ -14,7 +14,7 @@ export async function uploadFile(
     },
     session,
   );
-  return graffiti.objectToUri(putted);
+  return putted.url;
 }
 
 export { useGraffitiGetFile } from "./composables";

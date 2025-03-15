@@ -6,6 +6,7 @@ import { useGraffiti } from "@graffiti-garden/wrapper-vue";
 import { channels, submissionSchema } from "./schemas";
 import { useRouter } from "vue-router";
 import { uploadFile } from "./files/index";
+import markdownit from "markdown-it";
 
 const router = useRouter();
 
@@ -122,6 +123,12 @@ async function submit(session: GraffitiSession) {
     }
     router.push({ name: "gallery" });
 }
+
+const showMe = ref<"entry" | "preview">("entry");
+const md = markdownit({
+    html: true,
+    linkify: true,
+});
 </script>
 
 <template>
@@ -168,32 +175,52 @@ async function submit(session: GraffitiSession) {
             <label for="title">Title</label>
             <input id="title" v-model="title" required placeholder="My Title" />
 
-            <label for="content">
-                <p>
-                    Describe your example and why it deserves to be in the hall
-                    of
-                    <strong>{{
-                        fameOrShame === "fame"
-                            ? "fame"
-                            : fameOrShame === "shame"
-                              ? "shame"
-                              : "fame or shame"
-                    }}</strong
-                    >.
-                </p>
-                <p>
-                    Try to use terminology from class and The Design of Everyday
-                    Things. If this is an online example, please include links.
-                    Both markdown and HTML are accepted in your response.
-                </p>
-            </label>
-            <textarea
-                style="min-height: 20em"
-                id="content"
-                v-model="content"
-                required
-                placeholder="I chose this example because..."
-            />
+            <section>
+                <label for="content">
+                    <p>
+                        Describe your example and why it deserves to be in the
+                        hall of
+                        <strong>{{
+                            fameOrShame === "fame"
+                                ? "fame"
+                                : fameOrShame === "shame"
+                                  ? "shame"
+                                  : "fame or shame"
+                        }}</strong
+                        >.
+                    </p>
+                    <p>
+                        Try to use terminology from class and The Design of
+                        Everyday Things. If this is an online example, please
+                        include links. Both markdown and HTML are accepted in
+                        your response.
+                    </p>
+                </label>
+                <fieldset>
+                    <input
+                        type="radio"
+                        id="entry"
+                        value="entry"
+                        v-model="showMe"
+                    />
+                    <label for="entry">Edit</label>
+                    <input
+                        type="radio"
+                        id="preview"
+                        value="preview"
+                        v-model="showMe"
+                    />
+                    <label for="preview"> Preview </label>
+                </fieldset>
+                <textarea
+                    v-if="showMe === 'entry'"
+                    id="content"
+                    v-model="content"
+                    required
+                    placeholder="I chose this example because..."
+                />
+                <div v-else v-html="md.render(content)"></div>
+            </section>
 
             <ol>
                 <li v-for="(image, index) in imageFiles" :key="index">
@@ -205,7 +232,7 @@ async function submit(session: GraffitiSession) {
 
                     <GraffitiGetFile
                         v-else
-                        :locationOrUri="image.graffitiFile"
+                        :url="image.graffitiFile"
                         v-slot="{ fileUrl }"
                     >
                         <img v-if="fileUrl" :src="fileUrl" :alt="image.alt" />
@@ -240,3 +267,33 @@ async function submit(session: GraffitiSession) {
         </form>
     </template>
 </template>
+
+<style scoped>
+section {
+    border-radius: var(--pico-border-radius);
+    border-top: var(--pico-border-width) solid var(--pico-border-color);
+
+    fieldset {
+        background-color: var(--pico-form-element-background-color);
+        border: var(--pico-border-width) solid var(--pico-border-color);
+        margin-bottom: 0;
+        padding: var(--pico-form-element-spacing-vertical)
+            var(--pico-form-element-spacing-horizontal);
+        border-top-left-radius: var(--pico-border-radius);
+        border-top-right-radius: var(--pico-border-radius);
+    }
+
+    textarea,
+    div {
+        min-height: 20em;
+    }
+
+    div {
+        background-color: var(--pico-form-element-background-color);
+        border: var(--pico-border-width) solid var(--pico-border-color);
+        border-radius: var(--pico-border-radius);
+        padding: var(--pico-form-element-spacing-vertical)
+            var(--pico-form-element-spacing-horizontal);
+    }
+}
+</style>
