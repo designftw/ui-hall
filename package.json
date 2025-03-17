@@ -10,7 +10,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "@graffiti-garden/api": "^0.6.2",
-    "@graffiti-garden/implementation-remote": "^0.6.0",
+    "@graffiti-garden/implementation-remote": "^0.6.1",
     "@graffiti-garden/wrapper-vue": "^0.6.3",
     "@picocss/pico": "^2.0.6",
     "markdown-it": "^14.1.0",
